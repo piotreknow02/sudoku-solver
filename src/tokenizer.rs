@@ -1,7 +1,8 @@
 use crate::model::Sudoku;
 
 use serde_json::{from_reader, to_string};
-use std::{fs::File, io::BufReader, result::Result, error::Error};
+use serde::ser::StdError;
+use std::{fs::File, io::{BufReader, Write}, result::Result, error::Error};
 
 
 impl Sudoku {
@@ -9,18 +10,24 @@ impl Sudoku {
         let file = File::open(path)?;
         let reader = BufReader::new(file);
 
-        let table: [[Option<u8>; 9]; 9] = from_reader(reader)?;
-        let s = Self{table: table};
+        // let table: [[Option<u8>; 9]; 9] = from_reader(reader)?;
+        let s = Self{table: from_reader(reader)?};
         Ok(s)
     }
 
-    #[allow(dead_code)]
-    pub fn to_json(&self) -> Result<String, Box<dyn Error>> {
+    pub fn save_json(&self, path: &str) -> Result<(), Box<(dyn StdError)>> {
+        let mut file = File::create(path)?;
+        let _ = file.write_all(self.to_json()?.as_bytes());
+        Ok(())
+    }
+
+    fn to_json(&self) -> Result<String, Box<dyn Error>> {
         let json_str = to_string(self)?;
         Ok(json_str)
     }
 
-    // fn read_ocr(&mut self, path: &str) -> Result<()> {
+    pub fn read_ocr(path: &str) -> Result<Self, Box<dyn Error>> {
         
-    // }
+        Ok()
+    }
 }
