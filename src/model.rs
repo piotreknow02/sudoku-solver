@@ -3,7 +3,7 @@ use std::fmt::{Display, Formatter, Result};
 
 #[derive(Deserialize, Serialize)]
 pub struct Sudoku {
-    pub table: [[Option<u8>; 9]; 9]
+    pub table: [[Option<u8>; 9]; 9],
 }
 
 impl Display for Sudoku {
@@ -16,7 +16,11 @@ impl Display for Sudoku {
                 if x % 3 == 0 {
                     write!(f, "|")?;
                 }
-                write!(f, "{:?}", self.table[x][y].unwrap_or(0))?;
+                let c: char = match self.table[y][x] {
+                    Some(n) => char::from_digit(n as u32, 10).unwrap(),
+                    None => ' '
+                };
+                write!(f, "{}", c)?;
             }
             write!(f, "|\n")?;
         }

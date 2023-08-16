@@ -9,7 +9,8 @@ impl Sudoku {
         let file = File::open(path)?;
         let reader = BufReader::new(file);
 
-        let s: Self = from_reader(reader)?;
+        let table: [[Option<u8>; 9]; 9] = from_reader(reader)?;
+        let s = Self{table: table};
         Ok(s)
     }
 
