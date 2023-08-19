@@ -1,8 +1,8 @@
 name: Build the binary
 
 on:
-  push:
-    branches: [ main ]
+  release:
+    types: [created]
 
 jobs:
   build:
@@ -31,13 +31,7 @@ jobs:
         run: mv target/release/sudoku-solver  target/release/sudoku-solver-${{ env.OS }}-${{env.ARCH}}
 
       - name: Upload release
-        uses: softprops/action-gh-release@v1
+        uses: actions/upload-artifact@v3
         with:
-          files: target/release/sudoku-solver-*
-          tag_name: v${{ env.APP_VERSION }}
-          name: ${{ env.COMMIT_MESSAGE }}
-          fail_on_unmatched_files: true
-          draft: true
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        if: ${{ env.CURRENT_BRANCH == 'main' && startsWith(env.COMMIT_MESSAGE, '[Release]') }}
+          name: Binary
+          path: target/release/sudoku-solver-*
