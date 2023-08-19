@@ -1,0 +1,43 @@
+name: Build the binary
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  build:
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macOS-latest]
+    name: Build
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - uses: ATiltedTree/setup-rust@v1
+        with:
+          rust-version: stable
+
+      - name: Setup env
+        run: |
+            echo "OS=$(uname -o | sed -r 's/\//-/g')" >> $GITHUB_ENV
+            echo "ARCH=$(uname -m)" >> $GITHUB_ENV
+
+      - name: Compile project
+        run: cargo build --release
+
+      - name: Rename build
+        run: mv target/release/sudoku-solver  target/release/sudoku-solver-${{ env.OS }}-${{env.ARCH}}
+
+      - name: Upload release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: target/release/sudoku-solver-*
+          tag_name: v${{ env.APP_VERSION }}
+          name: ${{ env.COMMIT_MESSAGE }}
+          fail_on_unmatched_files: true
+          draft: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        if: ${{ env.CURRENT_BRANCH == 'main' && startsWith(env.COMMIT_MESSAGE, '[Release]') }}
