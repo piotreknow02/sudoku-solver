@@ -22,7 +22,7 @@ impl Sudoku {
     }
 
     fn to_json(&self) -> Result<String, Box<dyn Error>> {
-        let json_str = to_string(self)?;
+        let json_str = to_string(&self.table)?;
         Ok(json_str)
     }
 }
