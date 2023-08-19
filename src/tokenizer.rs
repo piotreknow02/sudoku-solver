@@ -25,9 +25,4 @@ impl Sudoku {
         let json_str = to_string(self)?;
         Ok(json_str)
     }
-
-    pub fn read_ocr(path: &str) -> Result<Self, Box<dyn Error>> {
-        
-        Ok()
-    }
 }
