@@ -1,6 +1,6 @@
 use clap::Parser;
 use model::Sudoku;
-use std::{path::Path, process::exit};
+use std::path::Path;
 
 mod model;
 mod solver;
@@ -18,16 +18,17 @@ struct Args {
 fn main() {
     let args = Args::parse();
     let mut my_sudoku = match args.input_file.extension().and_then(|s| s.to_str()) {
-        Some("json") => Sudoku::from_json(args.input_file.to_str().unwrap()).unwrap(),
-        Some("png") => Sudoku::from_ocr(args.input_file),
-        Some("jpg") => Sudoku::from_ocr(args.input_file),
-        None => exit(1),
+        Some("json") => Sudoku::from_json(args.input_file.to_str().expect("INPUT_FILE name parsing error")).expect("error reading json file"),
+        Some("png") => Sudoku::from_ocr(args.input_file.to_str().expect("INPUT_FILE name parsing error")).expect("error reading image file"),
+        Some("jpg") => Sudoku::from_ocr(args.input_file.to_str().expect("INPUT_FILE name parsing error")).expect("error reading image file"),
+        Some(_) => panic!("invalid file type"),
+        None => panic!("invalid arguments"),
     };
     let res = my_sudoku.solve();
 
     if res {
         match args.out_file {
-            Some(p) => my_sudoku.save_json(p.to_str()).unwrap(),
+            Some(p) => my_sudoku.save_json(p.to_str().expect("invalid output path")).unwrap(),
             None => println!("{}", my_sudoku),
         }
     } else {

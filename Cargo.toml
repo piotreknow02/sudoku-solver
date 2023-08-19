@@ -7,5 +7,7 @@ edition = "2021"
 
 [dependencies]
 clap = { version = "4.3.21", features = ["derive"] }
+image = "0.24.7"
+leptess = "0.14.0"
 serde = { version = "1.0.183", features = ["derive"] }
 serde_json = "1.0.104"
