@@ -19,19 +19,15 @@ jobs:
         with:
           rust-version: stable
 
-      - name: Setup env
-        run: |
-            echo "OS=$(uname -o | sed -r 's/\//-/g')" >> $GITHUB_ENV
-            echo "ARCH=$(uname -m)" >> $GITHUB_ENV
-
       - name: Compile project
         run: cargo build --release
 
       - name: Rename build
-        run: mv target/release/sudoku-solver  target/release/sudoku-solver-${{ env.OS }}-${{env.ARCH}}
+        run: mv target/release/sudoku-solver target/release/$(echo sudoku-solver-${{ runner.os }}-${{ runner.arch }} | tr '[:upper:]' '[:lower:]')
 
       - name: Upload release
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-release-asset@v1
+        env: GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          name: Binary
-          path: target/release/sudoku-solver-*
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: mv target/release/sudoku-solver-*
