@@ -5,30 +5,27 @@ on:
     types: [created]
 
 jobs:
-  build:
+  release:
+    name: release ${{ matrix.target }}
+    runs-on: ubuntu-latest
     strategy:
+      fail-fast: false
       matrix:
-        os: [ubuntu-latest, macOS-latest]
-    name: Build
-    runs-on: ${{ matrix.os }}
-
+        include:
+          - target: x86_64-unknown-linux-gnu
+            archive: tar.gz
+          - target: aarch64-unknown-linux-gnu
+            archive: tar.gz
+          - target: x86_64-apple-darwin
+            archive: zip
+          - target: aarch64-apple-darwin
+            archive: zip
     steps:
-      - uses: actions/checkout@v3
-
-      - uses: ATiltedTree/setup-rust@v1
-        with:
-          rust-version: stable
-
-      - name: Compile project
-        run: cargo build --release
-
-      - name: Rename build
-        run: mv target/release/sudoku-solver target/release/$(echo sudoku-solver-${{ runner.os }}-${{ runner.arch }} | tr '[:upper:]' '[:lower:]')
-
-      - name: Upload release
-        uses: actions/upload-release-asset@v1
+      - uses: actions/checkout@master
+      - name: Compile and release
+        uses: rust-build/rust-build.action@v1.4.3
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: mv target/release/sudoku-solver-*
+          RUSTTARGET: ${{ matrix.target }}
+          ARCHIVE_TYPES: ${{ matrix.archive }}
